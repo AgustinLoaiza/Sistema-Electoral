@@ -15,7 +15,14 @@ class VotanteEleccionController extends Controller
             ->where('eleccion_id', $eleccion->id)
             ->paginate(20);
 
-        return view('votantes.index', compact('eleccion', 'votantes'));
+        $usuarios = Usuario::query()
+            ->where('activo', true)
+            ->where('rol', 'votante')
+            ->orderBy('apellidos', 'asc')
+            ->orderBy('nombres', 'asc')
+            ->get();
+
+        return view('votantes.index', compact('eleccion', 'votantes', 'usuarios'));
     }
 
     public function store(Request $request, Eleccion $eleccion)

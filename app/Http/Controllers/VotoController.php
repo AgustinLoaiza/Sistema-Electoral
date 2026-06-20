@@ -41,8 +41,7 @@ class VotoController extends Controller
         $data = $request->validate([
             'votos' => ['required', 'array'],
             'votos.*.puesto_id' => ['required', 'exists:puestos,id'],
-            'votos.*.tipo_voto' => ['required', 'in:candidato,blanco,nulo'],
-            'votos.*.candidato_id' => ['nullable', 'exists:candidatos,id'],
+            'votos.*.seleccion' => ['required', 'string'],
         ]);
 
         DB::transaction(function () use ($eleccion, $usuario, $data) {
@@ -60,13 +59,23 @@ class VotoController extends Controller
             }
 
             foreach ($data['votos'] as $voto) {
+                $tipoVoto = $voto['seleccion'];
+                $candidatoId = null;
+
+                if (str_starts_with($voto['seleccion'], 'candidato:')) {
+                    $tipoVoto = Voto::TIPO_CANDIDATO;
+                    $candidatoId = (int) str_replace('candidato:', '', $voto['seleccion']);
+                }
+
+                if (! in_array($tipoVoto, [Voto::TIPO_CANDIDATO, Voto::TIPO_BLANCO, Voto::TIPO_NULO], true)) {
+                    abort(422, 'Seleccion de voto no valida.');
+                }
+
                 Voto::create([
                     'eleccion_id' => $eleccion->id,
                     'puesto_id' => $voto['puesto_id'],
-                    'candidato_id' => $voto['tipo_voto'] === Voto::TIPO_CANDIDATO
-                        ? $voto['candidato_id']
-                        : null,
-                    'tipo_voto' => $voto['tipo_voto'],
+                    'candidato_id' => $candidatoId,
+                    'tipo_voto' => $tipoVoto,
                 ]);
             }
 

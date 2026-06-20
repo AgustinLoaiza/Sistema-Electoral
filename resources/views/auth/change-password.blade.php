@@ -1,62 +1,38 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Cambiar contraseña</title>
-</head>
-<body>
-    <h1>Cambiar contraseña</h1>
+@extends('layouts.auth')
 
-    <p>Debes cambiar tu contraseña antes de continuar.</p>
+@section('title', 'Cambiar contrasena')
 
-    @if ($errors->any())
-        <div>
-            @foreach ($errors->all() as $error)
-                <p>{{ $error }}</p>
-            @endforeach
-        </div>
-    @endif
+@section('content')
+    <p class="page-kicker">Primer ingreso</p>
+    <h2 class="page-title">Cambia tu contrasena</h2>
+    <p class="muted">Debes definir una contrasena personal antes de continuar.</p>
 
-    <form method="POST" action="{{ route('password.update') }}">
+    <form method="POST" action="{{ route('password.update') }}" class="grid mt-2">
         @csrf
         @method('PUT')
 
-        <div>
-            <label for="password_actual">Contraseña actual</label>
-            <input
-                id="password_actual"
-                type="password"
-                name="password_actual"
-                required
-            >
+        <div class="field">
+            <label for="password_actual">Contrasena actual</label>
+            <input id="password_actual" type="password" name="password_actual" required>
         </div>
 
-        <div>
-            <label for="password">Nueva contraseña</label>
-            <input
-                id="password"
-                type="password"
-                name="password"
-                required
-            >
+        <div class="field">
+            <label for="password">Nueva contrasena</label>
+            <input id="password" type="password" name="password" required>
         </div>
 
-        <div>
-            <label for="password_confirmation">Confirmar nueva contraseña</label>
-            <input
-                id="password_confirmation"
-                type="password"
-                name="password_confirmation"
-                required
-            >
+        <div class="field">
+            <label for="password_confirmation">Confirmar nueva contrasena</label>
+            <input id="password_confirmation" type="password" name="password_confirmation" required>
         </div>
 
-        <button type="submit">Guardar contraseña</button>
+        <div class="btn-row">
+            <button class="btn btn-primary" type="submit">Guardar contrasena</button>
+        </div>
     </form>
 
-    <form method="POST" action="{{ route('logout') }}">
+    <form method="POST" action="{{ route('logout') }}" class="mt-1">
         @csrf
-        <button type="submit">Cerrar sesión</button>
+        <button class="btn btn-outline" type="submit">Cerrar sesion</button>
     </form>
-</body>
-</html>
+@endsection

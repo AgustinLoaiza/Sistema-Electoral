@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Campamento;
 use App\Models\Eleccion;
 use App\Models\Puesto;
+use App\Support\PdfReport;
 
 class EleccionController extends Controller
 {
@@ -20,6 +21,35 @@ class EleccionController extends Controller
             ->paginate(15);
 
         return view('elecciones.index', compact('elecciones'));
+    }
+
+    public function exportPdf()
+    {
+        $elecciones = Eleccion::with('campamento', 'creador')
+            ->latest()
+            ->get();
+
+        $rows = $elecciones->map(fn (Eleccion $eleccion) => [
+            $eleccion->titulo,
+            $eleccion->campamento->nombre ?? 'Sin campamento',
+            $eleccion->estado,
+            $eleccion->fecha_inicio?->format('Y-m-d H:i') ?? 'Sin inicio',
+            $eleccion->fecha_fin?->format('Y-m-d H:i') ?? 'Sin cierre',
+            trim(($eleccion->creador->nombres ?? '') . ' ' . ($eleccion->creador->apellidos ?? '')),
+        ]);
+
+        $pdf = PdfReport::make(
+            'Reporte de elecciones',
+            'Procesos electorales registrados',
+            ['Titulo', 'Campamento', 'Estado', 'Inicio', 'Cierre', 'Creado por'],
+            $rows
+        );
+
+        return response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="elecciones.pdf"',
+            'Cache-Control' => 'no-store',
+        ]);
     }
 
     /**
