@@ -27,6 +27,9 @@
 
                 @if($usuario && in_array($usuario->rol, ['super_admin', 'admin'], true))
                     <p class="nav-label">Gestion</p>
+                    @if($usuario->rol === 'super_admin')
+                        <a class="nav-link" href="{{ route('campamentos.index') }}">Campamentos <span>&rsaquo;</span></a>
+                    @endif
                     <a class="nav-link" href="{{ route('elecciones.index') }}">Elecciones <span>&rsaquo;</span></a>
                     <a class="nav-link" href="{{ route('usuarios.index') }}">Usuarios <span>&rsaquo;</span></a>
                     <a class="nav-link" href="{{ route('puestos.index') }}">Puestos <span>&rsaquo;</span></a>

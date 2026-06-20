@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordChangeController;
+use App\Http\Controllers\CampamentoController;
 use App\Http\Controllers\CandidatoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EleccionController;
@@ -51,6 +52,10 @@ Route::middleware(['auth', 'usuario.activo', 'password.force'])->group(function 
     Route::get('/votante/dashboard', [DashboardController::class, 'votante'])
         ->middleware('role:votante')
         ->name('votante.dashboard');
+
+    Route::middleware('role:super_admin')->group(function () {
+        Route::resource('campamentos', CampamentoController::class);
+    });
 
     Route::middleware('role:super_admin,admin')->group(function () {
         Route::get('/usuarios/exportar-pdf', [UsuarioController::class, 'exportPdf'])
