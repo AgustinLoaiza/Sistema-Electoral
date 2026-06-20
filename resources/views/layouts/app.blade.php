@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Sistema Electoral DeMolay')</title>
-    <link rel="stylesheet" href="{{ asset('css/demolay.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/demolay.css') }}?v={{ filemtime(public_path('css/demolay.css')) }}">
 </head>
 <body>
     @php($usuario = auth()->user())
