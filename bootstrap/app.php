@@ -11,6 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'usuario.activo' => \App\Http\Middleware\EnsureUsuarioActivo::class,
             'password.force' => \App\Http\Middleware\ForcePasswordChange::class,
