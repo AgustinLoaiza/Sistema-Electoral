@@ -14,6 +14,12 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\VotanteEleccionController;
 use App\Http\Controllers\VotoController;
 
+Route::get('/', function () {
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
+});
+
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])
@@ -29,32 +35,6 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
 
     Route::put('/cambiar-password', [PasswordChangeController::class, 'update'])
         ->name('password.update');
-
-    Route::middleware('password.force')->group(function () {
-        Route::get('/dashboard', function () {
-            $usuario = Auth::user();
-
-            return match ($usuario->rol) {
-                'super_admin' => redirect()->route('super-admin.dashboard'),
-                'admin' => redirect()->route('admin.dashboard'),
-                default => redirect()->route('votante.dashboard'),
-            };
-        })->name('dashboard');
-    });
-});
-
-Route::middleware(['auth', 'usuario.activo', 'password.force'])->group(function () {
-    Route::get('/super-admin/dashboard', fn () => 'Dashboard Super Admin')
-        ->middleware('role:super_admin')
-        ->name('super-admin.dashboard');
-
-    Route::get('/admin/dashboard', fn () => 'Dashboard Admin')
-        ->middleware('role:admin,super_admin')
-        ->name('admin.dashboard');
-
-    Route::get('/votante/dashboard', fn () => 'Dashboard Votante')
-        ->middleware('role:votante')
-        ->name('votante.dashboard');
 });
 
 Route::middleware(['auth', 'usuario.activo', 'password.force'])->group(function () {
@@ -73,13 +53,18 @@ Route::middleware(['auth', 'usuario.activo', 'password.force'])->group(function 
         ->name('votante.dashboard');
 
     Route::middleware('role:super_admin,admin')->group(function () {
+        Route::get('/usuarios/exportar-pdf', [UsuarioController::class, 'exportPdf'])
+            ->name('usuarios.export-pdf');
         Route::resource('usuarios', UsuarioController::class);
         Route::post('/usuarios/{usuario}/reset-password', [UsuarioController::class, 'resetPassword'])
             ->name('usuarios.reset-password');
 
         Route::resource('puestos', PuestoController::class)->except(['show']);
 
-        Route::resource('elecciones', EleccionController::class);
+        Route::get('/elecciones/exportar-pdf', [EleccionController::class, 'exportPdf'])
+            ->name('elecciones.export-pdf');
+        Route::resource('elecciones', EleccionController::class)
+            ->parameters(['elecciones' => 'eleccion']);
         Route::post('/elecciones/{eleccion}/abrir', [EleccionController::class, 'abrir'])
             ->name('elecciones.abrir');
         Route::post('/elecciones/{eleccion}/cerrar', [EleccionController::class, 'cerrar'])
@@ -118,4 +103,6 @@ Route::middleware(['auth', 'usuario.activo', 'password.force'])->group(function 
 
     Route::get('/resultados/{eleccion}', [ResultadoController::class, 'show'])
         ->name('resultados.show');
+    Route::get('/resultados/{eleccion}/exportar-pdf', [ResultadoController::class, 'exportPdf'])
+        ->name('resultados.export-pdf');
 });

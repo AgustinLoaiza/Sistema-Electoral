@@ -18,7 +18,8 @@ class CandidatoController extends Controller
         $eleccion->load('puestos');
         $usuarios = Usuario::query()->where('activo', true)
             ->where('rol', 'votante')
-            ->orderBy('apellidos')
+            ->orderBy('apellidos', 'asc')
+            ->orderBy('nombres', 'asc')
             ->get();
 
         return view('candidatos.create', compact('eleccion', 'usuarios'));
